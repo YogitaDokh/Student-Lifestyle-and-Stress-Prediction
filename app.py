@@ -10,7 +10,7 @@ MODEL_PATH = "SVC_Model.pkl"
 with open(MODEL_PATH, "rb") as file:
     model = pickle.load(file)
 
-# Interactive & User-Friendly HTML Template with corrected data boundaries
+# Interactive & User-Friendly HTML Template with Demo Button
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +43,13 @@ HTML_TEMPLATE = """
         h2 {
             text-align: center;
             color: #4a5568;
-            margin-bottom: 25px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 20px;
         }
         .form-group {
             margin-bottom: 18px;
@@ -84,6 +90,15 @@ HTML_TEMPLATE = """
         button:hover {
             background: #5a67d8;
         }
+        .demo-btn {
+            background: #4a5568;
+            margin-bottom: 20px;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .demo-btn:hover {
+            background: #2d3748;
+        }
         .result-box {
             margin-top: 25px;
             padding: 15px;
@@ -100,6 +115,10 @@ HTML_TEMPLATE = """
 
 <div class="container">
     <h2>Student Performance Predictor</h2>
+    <p class="subtitle">Note: Model limits are highly sensitive to specific distance configurations.</p>
+    
+    <button type="button" class="demo-btn" onclick="loadDemoValues()">⚡ Load Sample Data (Will Predict 1)</button>
+
     <form id="predictionForm">
         <div class="form-group">
             <label for="Student_Type">Student Type (0 - 3)</label>
@@ -153,6 +172,17 @@ HTML_TEMPLATE = """
 </div>
 
 <script>
+    function loadDemoValues() {
+        document.getElementById('Student_Type').value = "0";
+        document.getElementById('Sleep_Hours').value = "6.0";
+        document.getElementById('Study_Hours').value = "3.0";
+        document.getElementById('Social_Media_Hours').value = "2.0";
+        document.getElementById('Attendance').value = "80.0";
+        document.getElementById('Exam_Pressure').value = "9";
+        document.getElementById('Family_Support').value = "7";
+        document.getElementById('Month').value = "2";
+    }
+
     document.getElementById('predictionForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const resultDiv = document.getElementById('result');
