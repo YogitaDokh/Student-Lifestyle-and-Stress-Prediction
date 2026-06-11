@@ -10,7 +10,7 @@ MODEL_PATH = "SVC_Model.pkl"
 with open(MODEL_PATH, "rb") as file:
     model = pickle.load(file)
 
-# Interactive & User-Friendly HTML Template
+# Interactive & User-Friendly HTML Template with corrected data boundaries
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -102,46 +102,48 @@ HTML_TEMPLATE = """
     <h2>Student Performance Predictor</h2>
     <form id="predictionForm">
         <div class="form-group">
-            <label for="Student_Type">Student Type</label>
+            <label for="Student_Type">Student Type (0 - 3)</label>
             <select id="Student_Type" name="Student_Type" required>
-                <option value="0">Regular</option>
-                <option value="1">Distance/Part-time</option>
+                <option value="0">Type 0</option>
+                <option value="1">Type 1</option>
+                <option value="2">Type 2</option>
+                <option value="3">Type 3</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label for="Sleep_Hours">Daily Sleep Hours</label>
-            <input type="number" id="Sleep_Hours" name="Sleep_Hours" step="0.1" min="0" max="24" required placeholder="e.g., 7.5">
+            <label for="Sleep_Hours">Daily Sleep Hours (4.5 - 8.5)</label>
+            <input type="number" id="Sleep_Hours" name="Sleep_Hours" step="0.01" min="0" max="24" required placeholder="e.g., 6.37">
         </div>
 
         <div class="form-group">
-            <label for="Study_Hours">Daily Study Hours</label>
-            <input type="number" id="Study_Hours" name="Study_Hours" step="0.1" min="0" max="24" required placeholder="e.g., 4.0">
+            <label for="Study_Hours">Daily Study Hours (1.5 - 7.5)</label>
+            <input type="number" id="Study_Hours" name="Study_Hours" step="0.01" min="0" max="24" required placeholder="e.g., 3.95">
         </div>
 
         <div class="form-group">
-            <label for="Social_Media_Hours">Daily Social Media Hours</label>
-            <input type="number" id="Social_Media_Hours" name="Social_Media_Hours" step="0.1" min="0" max="24" required placeholder="e.g., 2.0">
+            <label for="Social_Media_Hours">Daily Social Media Hours (1.0 - 6.0)</label>
+            <input type="number" id="Social_Media_Hours" name="Social_Media_Hours" step="0.01" min="0" max="24" required placeholder="e.g., 2.61">
         </div>
 
         <div class="form-group">
-            <label for="Attendance">Attendance Percentage (%)</label>
-            <input type="number" id="Attendance" name="Attendance" min="0" max="100" required placeholder="e.g., 85">
+            <label for="Attendance">Attendance Percentage (65% - 100%)</label>
+            <input type="number" id="Attendance" name="Attendance" step="0.01" min="0" max="100" required placeholder="e.g., 81.27">
         </div>
 
         <div class="form-group">
-            <label for="Exam_Pressure">Exam Pressure Level (1-5)</label>
-            <input type="number" id="Exam_Pressure" name="Exam_Pressure" min="1" max="5" required placeholder="e.g., 3">
+            <label for="Exam_Pressure">Exam Pressure Level (1 - 10)</label>
+            <input type="number" id="Exam_Pressure" name="Exam_Pressure" min="1" max="10" required placeholder="e.g., 8">
         </div>
 
         <div class="form-group">
-            <label for="Family_Support">Family Support Level (1-5)</label>
-            <input type="number" id="Family_Support" name="Family_Support" min="1" max="5" required placeholder="e.g., 4">
+            <label for="Family_Support">Family Support Level (1 - 10)</label>
+            <input type="number" id="Family_Support" name="Family_Support" min="1" max="10" required placeholder="e.g., 7">
         </div>
 
         <div class="form-group">
-            <label for="Month">Current Academic Month Number (1-12)</label>
-            <input type="number" id="Month" name="Month" min="1" max="12" required placeholder="e.g., 5">
+            <label for="Month">Academic Month (1 - 12)</label>
+            <input type="number" id="Month" name="Month" min="1" max="12" required placeholder="e.g., 2">
         </div>
 
         <button type="submit">Predict Outcome</button>
@@ -156,7 +158,6 @@ HTML_TEMPLATE = """
         const resultDiv = document.getElementById('result');
         resultDiv.style.display = 'none';
 
-        // Gather data from input elements
         const formData = {
             Student_Type: parseFloat(document.getElementById('Student_Type').value),
             Sleep_Hours: parseFloat(document.getElementById('Sleep_Hours').value),
@@ -204,7 +205,6 @@ def predict():
     try:
         data = request.get_json()
         
-        # Extract features exactly in the order the SVC model expects
         features = [
             float(data['Student_Type']),
             float(data['Sleep_Hours']),
@@ -216,19 +216,14 @@ def predict():
             float(data['Month'])
         ]
         
-        # Reshape for single sample prediction
         input_data = np.array([features])
-        
-        # Make prediction
         prediction = model.predict(input_data)[0]
         
-        # If prediction yields a numpy integer type, convert to standard Python int for JSON serialization
         return jsonify({'prediction': int(prediction)})
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
-    # Use environment port for production environments like Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
